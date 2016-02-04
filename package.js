@@ -1,20 +1,20 @@
 // Source: https://github.com/chjj/marked
 
 Package.describe({
-  summary: "A markdown parser and compiler. Built for speed.",
-  version: "0.3.5_1",
-  name: "chuangbo:marked",
-  git: "https://github.com/chuangbo/meteor-marked.git"
+  summary: "a available",
+  version: "1.2.0",
+  name: "shanyue:marked",
+  git: "https://github.com/mybigjsdream/meteor-marked.git"
 });
 
 Package.on_use(function (api) {
-  api.versionsFrom("METEOR@0.9.1");
+  api.versionsFrom("METEOR@1.2.1");
   api.use("templating", "client", {weak: true});
 
   api.add_files("pre-marked.js");
   api.add_files("marked/lib/marked.js");
   api.add_files("post-marked.js");
 
-  api.add_files('template-integration.js', 'client');
+  //api.add_files('template-integration.js', 'client');
   api.export('marked');
 });

@@ -797,7 +797,7 @@ Renderer.prototype.heading = function(text, level, raw) {
     + level
     + ' id="'
     + this.options.headerPrefix
-    + raw.toLowerCase().replace(/[^\w]+/g, '-')
+    + raw.slice(0,1)
     + '">'
     + text
     + '</h'
@@ -984,7 +984,7 @@ Parser.prototype.tok = function() {
       return this.renderer.heading(
         this.inline.output(this.token.text),
         this.token.depth,
-        this.token.text);
+        marked.source);
     }
     case 'code': {
       return this.renderer.code(this.token.text,
@@ -1150,6 +1150,8 @@ function marked(src, opt, callback) {
       opt = null;
     }
 
+    this.source = src;
+
     opt = merge({}, marked.defaults, opt || {});
 
     var highlight = opt.highlight
@@ -1270,7 +1272,10 @@ marked.lexer = Lexer.lex;
 marked.InlineLexer = InlineLexer;
 marked.inlineLexer = InlineLexer.output;
 
+marked.source = '';
 marked.parse = marked;
+
+
 
 if (typeof module !== 'undefined' && typeof exports === 'object') {
   module.exports = marked;

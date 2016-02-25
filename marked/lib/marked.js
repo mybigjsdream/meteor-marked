@@ -198,8 +198,12 @@ Lexer.prototype.token = function(src, top, bq) {
     // heading
     if (cap = this.rules.heading.exec(src)) {
       src = src.substring(cap[0].length);
-      var pre_src = get_pre_src(tmp_src, src);
-      var line_count = pre_src.split('\n').length;
+      var line_count = 0;
+      if(src == '') {
+        line_count = 1;
+      } else {
+        line_count = get_pre_src(tmp_src, src).split('\n').length;
+      }
       this.tokens.push({
         type: 'heading',
         depth: cap[1].length,
@@ -244,10 +248,17 @@ Lexer.prototype.token = function(src, top, bq) {
     // lheading
     if (cap = this.rules.lheading.exec(src)) {
       src = src.substring(cap[0].length);
+      var line_count = 0;
+      if(src == '') {
+        line_count = 1;
+      } else {
+        line_count = get_pre_src(tmp_src, src).split('\n').length;
+      }
       this.tokens.push({
         type: 'heading',
         depth: cap[2] === '=' ? 1 : 2,
-        text: cap[1]
+        text: cap[1],
+        line_cout: line_count
       });
       continue;
     }

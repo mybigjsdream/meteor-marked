@@ -1,8 +1,8 @@
 // Source: https://github.com/chjj/marked
 
 Package.describe({
-  summary: "a available 1.2.4",
-  version: "1.2.4",
+  summary: "a available 1.2.9",
+  version: "1.2.9",
   name: "shanyue:marked",
   git: "https://github.com/mybigjsdream/meteor-marked.git"
 });

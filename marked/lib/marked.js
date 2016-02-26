@@ -199,10 +199,10 @@ Lexer.prototype.token = function(src, top, bq) {
     if (cap = this.rules.heading.exec(src)) {
       src = src.substring(cap[0].length);
       var line_count = 0;
-      if(src == '') {
+      if(src == '' && tmp_src.split('\n').length == 1) {
         line_count = 1;
       } else {
-        line_count = get_pre_src(tmp_src, src).split('\n').length;
+        line_count = get_pre_src(tmp_src, src, cap[0]).split('\n').length;
       }
       this.tokens.push({
         type: 'heading',
@@ -249,10 +249,10 @@ Lexer.prototype.token = function(src, top, bq) {
     if (cap = this.rules.lheading.exec(src)) {
       src = src.substring(cap[0].length);
       var line_count = 0;
-      if(src == '') {
+      if(src == '' && tmp_src.split('\n').length == 1) {
         line_count = 1;
       } else {
-        line_count = get_pre_src(tmp_src, src).split('\n').length;
+        line_count = get_pre_src(tmp_src, src, cap[0]).split('\n').length;
       }
       this.tokens.push({
         type: 'heading',
@@ -1100,13 +1100,25 @@ Parser.prototype.tok = function() {
  * Helpers
  */
 
-function get_pre_src(tmp_src, src) {
+function get_pre_src() {
+  var tmp_src = arguments[0];
+  var src = arguments[1];
+  var cap = arguments[2];
+  var i = 0, j = 0;
+  for(;j < cap.split('\n').length-1;j++){
+    src = '\n' + src;
+  }
+  if(src == '') {
+    return tmp_src;
+  }
   var temp_list = tmp_src.split(src);
-  var i = 0;
   var return_src='';
   if(temp_list.length == 2) {
     return temp_list[0];
   }
+  //if(temp_list.split('\n').join('') == ''){
+  //  return
+  //}
   for(;i < temp_list.length - 1;i++){
     if(temp_list[i] == '') {
       return_src += src;
@@ -1114,7 +1126,6 @@ function get_pre_src(tmp_src, src) {
     else{
       return_src += temp_list[i]+src;
     }
-    return_src += src;
   }
   return return_src;
 }

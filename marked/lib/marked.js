@@ -199,12 +199,6 @@ Lexer.prototype.token = function(src, top, bq) {
     if (cap = this.rules.heading.exec(src)) {
       var line_count = get_head_line(src, tmp_src);
       src = src.substring(cap[0].length);
-      //var line_count = 0;
-      //if(src == '' && tmp_src.split('\n').length == 1) {
-      //  line_count = 1;
-      //} else {
-      //  line_count = get_pre_src(tmp_src, src, cap[0]).split('\n').length;
-      //}
       this.tokens.push({
         type: 'heading',
         depth: cap[1].length,
@@ -248,13 +242,8 @@ Lexer.prototype.token = function(src, top, bq) {
 
     // lheading
     if (cap = this.rules.lheading.exec(src)) {
+      var line_count = get_head_line(src, tmp_src);
       src = src.substring(cap[0].length);
-      //var line_count = 0;
-      //if(src == '' && tmp_src.split('\n').length == 1) {
-      //  line_count = 1;
-      //} else {
-      //  line_count = get_pre_src(tmp_src, src, cap[0]).split('\n').length;
-      //}
       this.tokens.push({
         type: 'heading',
         depth: cap[2] === '=' ? 1 : 2,
@@ -1104,9 +1093,9 @@ Parser.prototype.tok = function() {
 function get_head_line() {
   var src = arguments[0];
   var tmp_src = arguments[1];
-  var raw_cap = /^(.*)\n*$/g.exec(src)[1];
+  var raw_cap = /^(.*)\n*/g.exec(src)[1] || /^(.*)$/g.exec(src)[1];
   var tail_src = src.substring(raw_cap.length);
-  var re = new RegExp("^(.*)"+tail_src+"$");
+  var re = new RegExp("^([\\w\\W]+)"+tail_src+"$", "g");
   var return_src = re.exec(tmp_src)[1];
   return return_src.split('\n').length;
 }

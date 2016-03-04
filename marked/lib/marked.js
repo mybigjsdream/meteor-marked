@@ -370,6 +370,7 @@ Lexer.prototype.token = function(src, top, bq) {
 
     // html
     if (cap = this.rules.html.exec(src)) {
+      var line_count = get_head_line(src, tmp_src);
       src = src.substring(cap[0].length);
       this.tokens.push({
         type: this.options.sanitize
@@ -377,7 +378,8 @@ Lexer.prototype.token = function(src, top, bq) {
           : 'html',
         pre: !this.options.sanitizer
           && (cap[1] === 'pre' || cap[1] === 'script' || cap[1] === 'style'),
-        text: cap[0]
+        text: cap[0],
+        line_count: line_count
       });
       continue;
     }
@@ -394,13 +396,15 @@ Lexer.prototype.token = function(src, top, bq) {
 
     // table (gfm)
     if (top && (cap = this.rules.table.exec(src))) {
+      var line_count = get_head_line(src, tmp_src);
       src = src.substring(cap[0].length);
 
       item = {
         type: 'table',
         header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
         align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-        cells: cap[3].replace(/(?: *\| *)?\n$/, '').split('\n')
+        cells: cap[3].replace(/(?: *\| *)?\n$/, '').split('\n'),
+        line_count: line_count
       };
 
       for (i = 0; i < item.align.length; i++) {
@@ -428,23 +432,27 @@ Lexer.prototype.token = function(src, top, bq) {
 
     // top-level paragraph
     if (top && (cap = this.rules.paragraph.exec(src))) {
+      var line_count = get_head_line(src, tmp_src);
       src = src.substring(cap[0].length);
       this.tokens.push({
         type: 'paragraph',
         text: cap[1].charAt(cap[1].length - 1) === '\n'
           ? cap[1].slice(0, -1)
-          : cap[1]
+          : cap[1],
+        line_count: line_count
       });
       continue;
     }
 
     // text
     if (cap = this.rules.text.exec(src)) {
+      var line_count = get_head_line(src, tmp_src);
       // Top-level should never reach here.
       src = src.substring(cap[0].length);
       this.tokens.push({
         type: 'text',
-        text: cap[0]
+        text: cap[0],
+        line_count: line_count
       });
       continue;
     }

@@ -163,10 +163,12 @@ Lexer.prototype.token = function(src, top, bq) {
   while (src) {
     // newline
     if (cap = this.rules.newline.exec(src)) {
+      var line_count = get_head_line(src, tmp_src);
       src = src.substring(cap[0].length);
       if (cap[0].length > 1) {
         this.tokens.push({
-          type: 'space'
+          type: 'space',
+          line_cout: line_count
         });
       }
     }
@@ -210,13 +212,15 @@ Lexer.prototype.token = function(src, top, bq) {
 
     // table no leading pipe (gfm)
     if (top && (cap = this.rules.nptable.exec(src))) {
+      var line_count = get_head_line(src, tmp_src);
       src = src.substring(cap[0].length);
 
       item = {
         type: 'table',
         header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
         align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
-        cells: cap[3].replace(/\n$/, '').split('\n')
+        cells: cap[3].replace(/\n$/, '').split('\n'),
+        line_cout: line_count
       };
 
       for (i = 0; i < item.align.length; i++) {
@@ -255,15 +259,18 @@ Lexer.prototype.token = function(src, top, bq) {
 
     // hr
     if (cap = this.rules.hr.exec(src)) {
+      var line_count = get_head_line(src, tmp_src);
       src = src.substring(cap[0].length);
       this.tokens.push({
-        type: 'hr'
+        type: 'hr',
+        line_cout: line_count
       });
       continue;
     }
 
     // blockquote
     if (cap = this.rules.blockquote.exec(src)) {
+      var line_count = get_head_line(src, tmp_src);
       src = src.substring(cap[0].length);
 
       this.tokens.push({
@@ -278,7 +285,8 @@ Lexer.prototype.token = function(src, top, bq) {
       this.token(cap, top, true);
 
       this.tokens.push({
-        type: 'blockquote_end'
+        type: 'blockquote_end',
+        line_cout: line_count
       });
 
       continue;
@@ -286,12 +294,14 @@ Lexer.prototype.token = function(src, top, bq) {
 
     // list
     if (cap = this.rules.list.exec(src)) {
+      var line_count = get_head_line(src, tmp_src);
       src = src.substring(cap[0].length);
       bull = cap[2];
 
       this.tokens.push({
         type: 'list_start',
-        ordered: bull.length > 1
+        ordered: bull.length > 1,
+        line_cout: line_count
       });
 
       // Get each top-level item.
@@ -826,7 +836,11 @@ Renderer.prototype.listitem = function(text) {
 
 Renderer.prototype.paragraph = function(text) {
   //return '<p>' + text + '</p>\n';
-  return '<p>' + text + '</p>\n';
+  return '<p'
+      +  ' id="'
+      +  'line-'
+      +
+      '>' + text + '</p>\n';
 };
 
 Renderer.prototype.table = function(header, body) {
@@ -1079,10 +1093,10 @@ Parser.prototype.tok = function() {
       return this.renderer.html(html);
     }
     case 'paragraph': {
-      return this.renderer.paragraph(this.inline.output(this.token.text));
+      return this.renderer.paragraph(this.inline.output(this.token.text), this.token.line_cout);
     }
     case 'text': {
-      return this.renderer.paragraph(this.parseText());
+      return this.renderer.paragraph(this.parseText(), this.token.line_cout);
     }
   }
 };

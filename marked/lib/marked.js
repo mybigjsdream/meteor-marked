@@ -807,7 +807,7 @@ Renderer.prototype.code = function(code, lang, escaped) {
     + '\n</code></pre>\n';
 };
 
-Renderer.prototype.blockquote = function(quote) {
+Renderer.prototype.blockquote = function(quote, line) {
   return '<blockquote>\n' + quote + '</blockquote>\n';
 };
 
@@ -829,11 +829,11 @@ Renderer.prototype.heading = function(text, level, count) {
     + '>\n';
 };
 
-Renderer.prototype.hr = function() {
+Renderer.prototype.hr = function(count) {
   return this.options.xhtml ? '<hr/>\n' : '<hr>\n';
 };
 
-Renderer.prototype.list = function(body, ordered) {
+Renderer.prototype.list = function(body, ordered, count) {
   var type = ordered ? 'ol' : 'ul';
   return '<' + type + '>\n' + body + '</' + type + '>\n';
 };
@@ -842,7 +842,7 @@ Renderer.prototype.listitem = function(text) {
   return '<li>' + text + '</li>\n';
 };
 
-Renderer.prototype.paragraph = function(text) {
+Renderer.prototype.paragraph = function(text, line) {
   //return '<p>' + text + '</p>\n';
   return '<p'
       +  ' id="'
@@ -851,7 +851,7 @@ Renderer.prototype.paragraph = function(text) {
       '>' + text + '</p>\n';
 };
 
-Renderer.prototype.table = function(header, body) {
+Renderer.prototype.table = function(header, body, line) {
   return '<table>\n'
     + '<thead>\n'
     + header
@@ -1007,7 +1007,7 @@ Parser.prototype.tok = function() {
       return '';
     }
     case 'hr': {
-      return this.renderer.hr();
+      return this.renderer.hr(this.token.line_count);
     }
     case 'heading': {
       return this.renderer.heading(
@@ -1053,7 +1053,7 @@ Parser.prototype.tok = function() {
 
         body += this.renderer.tablerow(cell);
       }
-      return this.renderer.table(header, body);
+      return this.renderer.table(header, body, this.token.line_count);
     }
     case 'blockquote_start': {
       var body = '';
@@ -1062,7 +1062,7 @@ Parser.prototype.tok = function() {
         body += this.tok();
       }
 
-      return this.renderer.blockquote(body);
+      return this.renderer.blockquote(body, this.token.line_count);
     }
     case 'list_start': {
       var body = ''
@@ -1072,7 +1072,7 @@ Parser.prototype.tok = function() {
         body += this.tok();
       }
 
-      return this.renderer.list(body, ordered);
+      return this.renderer.list(body, ordered, this.token.line_count);
     }
     case 'list_item_start': {
       var body = '';

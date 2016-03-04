@@ -825,6 +825,7 @@ Renderer.prototype.listitem = function(text) {
 };
 
 Renderer.prototype.paragraph = function(text) {
+  //return '<p>' + text + '</p>\n';
   return '<p>' + text + '</p>\n';
 };
 

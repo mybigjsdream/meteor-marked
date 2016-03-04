@@ -808,7 +808,7 @@ Renderer.prototype.code = function(code, lang, escaped) {
 };
 
 Renderer.prototype.blockquote = function(quote, line) {
-  return '<blockquote>\n' + quote + '</blockquote>\n';
+  return '<blockquote id="line-' + line + '">\n' + quote + '</blockquote>\n';
 };
 
 Renderer.prototype.html = function(html) {
@@ -830,12 +830,12 @@ Renderer.prototype.heading = function(text, level, count) {
 };
 
 Renderer.prototype.hr = function(count) {
-  return this.options.xhtml ? '<hr/>\n' : '<hr>\n';
+  return this.options.xhtml ? '<hr id="line-' + count +'"/>\n' : '<hr id="' + count + '">\n';
 };
 
 Renderer.prototype.list = function(body, ordered, count) {
   var type = ordered ? 'ol' : 'ul';
-  return '<' + type + '>\n' + body + '</' + type + '>\n';
+  return '<' + type + ' id="line-' + count + '">\n' + body + '</' + type + '>\n';
 };
 
 Renderer.prototype.listitem = function(text) {
@@ -847,12 +847,14 @@ Renderer.prototype.paragraph = function(text, line) {
   return '<p'
       +  ' id="'
       +  'line-'
-      +
-      '>' + text + '</p>\n';
+      +  line
+      +  '">'
+      +  text
+      + '</p>\n';
 };
 
 Renderer.prototype.table = function(header, body, line) {
-  return '<table>\n'
+  return '<table id="line-' + line + '">\n'
     + '<thead>\n'
     + header
     + '</thead>\n'

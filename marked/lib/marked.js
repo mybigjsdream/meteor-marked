@@ -168,7 +168,7 @@ Lexer.prototype.token = function(src, top, bq) {
       if (cap[0].length > 1) {
         this.tokens.push({
           type: 'space',
-          line_cout: line_count
+          line_count: line_count
         });
       }
     }
@@ -205,7 +205,7 @@ Lexer.prototype.token = function(src, top, bq) {
         type: 'heading',
         depth: cap[1].length,
         text: cap[2],
-        line_cout: line_count
+        line_count: line_count
       });
       continue;
     }
@@ -220,7 +220,7 @@ Lexer.prototype.token = function(src, top, bq) {
         header: cap[1].replace(/^ *| *\| *$/g, '').split(/ *\| */),
         align: cap[2].replace(/^ *|\| *$/g, '').split(/ *\| */),
         cells: cap[3].replace(/\n$/, '').split('\n'),
-        line_cout: line_count
+        line_count: line_count
       };
 
       for (i = 0; i < item.align.length; i++) {
@@ -252,7 +252,7 @@ Lexer.prototype.token = function(src, top, bq) {
         type: 'heading',
         depth: cap[2] === '=' ? 1 : 2,
         text: cap[1],
-        line_cout: line_count
+        line_count: line_count
       });
       continue;
     }
@@ -263,7 +263,7 @@ Lexer.prototype.token = function(src, top, bq) {
       src = src.substring(cap[0].length);
       this.tokens.push({
         type: 'hr',
-        line_cout: line_count
+        line_count: line_count
       });
       continue;
     }
@@ -286,7 +286,7 @@ Lexer.prototype.token = function(src, top, bq) {
 
       this.tokens.push({
         type: 'blockquote_end',
-        line_cout: line_count
+        line_count: line_count
       });
 
       continue;
@@ -301,7 +301,7 @@ Lexer.prototype.token = function(src, top, bq) {
       this.tokens.push({
         type: 'list_start',
         ordered: bull.length > 1,
-        line_cout: line_count
+        line_count: line_count
       });
 
       // Get each top-level item.
@@ -830,7 +830,7 @@ Renderer.prototype.heading = function(text, level, count) {
 };
 
 Renderer.prototype.hr = function(count) {
-  return this.options.xhtml ? '<hr id="line-' + count +'"/>\n' : '<hr id="' + count + '">\n';
+  return this.options.xhtml ? '<hr id="line-' + count +'"/>\n' : '<hr id="line-' + count + '">\n';
 };
 
 Renderer.prototype.list = function(body, ordered, count) {
@@ -1015,7 +1015,7 @@ Parser.prototype.tok = function() {
       return this.renderer.heading(
         this.inline.output(this.token.text),
         this.token.depth,
-        this.token.line_cout);
+        this.token.line_count);
     }
     case 'code': {
       return this.renderer.code(this.token.text,
@@ -1103,10 +1103,10 @@ Parser.prototype.tok = function() {
       return this.renderer.html(html);
     }
     case 'paragraph': {
-      return this.renderer.paragraph(this.inline.output(this.token.text), this.token.line_cout);
+      return this.renderer.paragraph(this.inline.output(this.token.text), this.token.line_count);
     }
     case 'text': {
-      return this.renderer.paragraph(this.parseText(), this.token.line_cout);
+      return this.renderer.paragraph(this.parseText(), this.token.line_count);
     }
   }
 };
@@ -1118,8 +1118,13 @@ Parser.prototype.tok = function() {
 function get_head_line() {
   var src = arguments[0];
   var tmp_src = arguments[1];
-  var raw_cap = /^(.*)\n*/g.exec(src)[1] || /^(.*)$/g.exec(src)[1];
-  var tail_src = src.substring(raw_cap.length);
+  var raw_cap;
+  try {
+    raw_cap = /^(.*)\n*/g.exec(src)[1] || /^(.*)$/g.exec(src)[1];
+  } catch(e) {
+    return src.split('\n').length;
+  }
+  var tail_src = src.substring(raw_cap.length).replace(/([.?*+^$[\]\\(){}|-])/g, "\\$1");
   var re = new RegExp("^([\\w\\W]+)"+tail_src+"$", "g");
   var return_src = re.exec(tmp_src)[1];
   return return_src.split('\n').length;
